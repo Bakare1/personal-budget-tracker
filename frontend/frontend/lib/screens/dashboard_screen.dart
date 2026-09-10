@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/account_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/transaction_provider.dart';
+import '../widgets/add_account_modal.dart';
+import '../widgets/add_transaction_modal.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -91,27 +93,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
               accountProv.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : accountProv.accounts.isEmpty
-                  ? const Text('No accounts created yet.')
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: accountProv.accounts.length,
-                      itemBuilder: (ctx, i) {
-                        final acc = accountProv.accounts[i];
-                        return ListTile(
-                          leading: const Icon(Icons.account_balance),
-                          title: Text(acc.name),
-                          subtitle: Text(acc.type),
-                          trailing: Text(
-                            '\$${acc.balance.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                      ? const Text('No accounts created yet.')
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: accountProv.accounts.length,
+                          itemBuilder: (ctx, i) {
+                            final acc = accountProv.accounts[i];
+                            return ListTile(
+                              leading: const Icon(Icons.account_balance),
+                              title: Text(acc.name),
+                              subtitle: Text(acc.type),
+                              trailing: Text(
+                                '\$${acc.balance.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
               const SizedBox(height: 24),
 
               // Recent Transactions Section
@@ -123,37 +125,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
               txProv.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : txProv.transactions.isEmpty
-                  ? const Text('No transactions recorded.')
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: txProv.transactions.length,
-                      itemBuilder: (ctx, i) {
-                        final tx = txProv.transactions[i];
-                        final isExpense = tx.type == 'EXPENSE';
-                        return ListTile(
-                          leading: Icon(
-                            isExpense
-                                ? Icons.arrow_downward
-                                : Icons.arrow_upward,
-                            color: isExpense ? Colors.red : Colors.green,
-                          ),
-                          title: Text(tx.note ?? 'Transaction'),
-                          subtitle: Text(tx.accountName ?? ''),
-                          trailing: Text(
-                            '${isExpense ? "-" : "+"}\$${tx.amount.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              color: isExpense ? Colors.red : Colors.green,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                      ? const Text('No transactions recorded.')
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: txProv.transactions.length,
+                          itemBuilder: (ctx, i) {
+                            final tx = txProv.transactions[i];
+                            final isExpense = tx.type == 'EXPENSE';
+                            return ListTile(
+                              leading: Icon(
+                                isExpense
+                                    ? Icons.arrow_downward
+                                    : Icons.arrow_upward,
+                                color: isExpense ? Colors.red : Colors.green,
+                              ),
+                              title: Text(tx.note ?? 'Transaction'),
+                              subtitle: Text(tx.accountName ?? ''),
+                              trailing: Text(
+                                '${isExpense ? "-" : "+"}\$${tx.amount.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  color: isExpense ? Colors.red : Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
             ],
           ),
         ),
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.small(
+            heroTag: 'add_account',
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (_) => const AddAccountModal(),
+              );
+            },
+            child: const Icon(Icons.account_balance),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton(
+            heroTag: 'add_tx',
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (_) => const AddTransactionModal(),
+              );
+            },
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }
